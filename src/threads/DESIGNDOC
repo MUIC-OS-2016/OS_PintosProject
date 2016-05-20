@@ -87,7 +87,8 @@ Pankaj Ahuja 5680004
 >> B4: Describe the sequence of events when a call to lock_acquire()
 >> causes a priority donation.  How is nested donation handled?
 - In priority donation, we save the old_priority of donee, then set donee thread priority to
-the same level as donor thread. And repeat the process if lock_acquire() still not success
+the same level as donor thread. And repeat the process if lock_acquire() still not success.
+When success the donee thread priority will be set to old_priority.
 
 >> B5: Describe the sequence of events when lock_release() is called
 >> on a lock that a higher-priority thread is waiting for.
@@ -103,10 +104,15 @@ the same level as donor thread. And repeat the process if lock_acquire() still n
 >> how your implementation avoids it.  Can you use a lock to avoid
 >> this race?
 
+- Use interrupt disable becuase it doesn't take that much time to set priority,
+so its better to just set and be done with it
+
 ---- RATIONALE ----
 
 >> B7: Why did you choose this design?  In what ways is it superior to
 >> another design you considered?
+
+The same as mention in B6
 
 			  ADVANCED SCHEDULER
 			  ==================
@@ -116,6 +122,8 @@ the same level as donor thread. And repeat the process if lock_acquire() still n
 >> C1: Copy here the declaration of each new or changed `struct' or
 >> `struct' member, global or static variable, `typedef', or
 >> enumeration.  Identify the purpose of each in 25 words or less.
+
+
 
 ---- ALGORITHMS ----
 
@@ -173,6 +181,15 @@ the CPU in a more equal fashion rather than one thread always hogging the CPU.
 >> abstraction layer for fixed-point math, that is, an abstract data
 >> type and/or a set of functions or macros to manipulate fixed-point
 >> numbers, why did you do so?  If not, why not?
+
+
+
+
+
+
+
+
+
 
 			   SURVEY QUESTIONS
 			   ================
