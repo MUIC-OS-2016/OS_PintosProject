@@ -128,8 +128,7 @@ https://web.stanford.edu/class/cs140/projects/pintos/pintos_7.html#SEC131
 
 - Use this eqn to calculate priority:
 priority = PRI_MAX - (recent_cpu / 4) - (nice * 2)
-
-If tied, use least cpu one
+If tied, use least recent_cpu one
 
 - Use this eqn to calculate recent_cpu:
 recent_cpu = (2*load_avg)/(2*load_avg + 1) * recent_cpu + nice,
@@ -151,6 +150,10 @@ ticks   A   B   C   A   B   C   to run
 >> C3: Did any ambiguities in the scheduler specification make values
 >> in the table uncertain?  If so, what rule did you use to resolve
 >> them?  Does this match the behavior of your scheduler?
+
+- If there are multiple priorities which are equal, I chose to use the thread
+this had the least recent_cpu one because that might make all threads utilize 
+the CPU in a more equal fashion rather than one thread always hogging the CPU.
 
 >> C4: How is the way you divided the cost of scheduling between code
 >> inside and outside interrupt context likely to affect performance?
