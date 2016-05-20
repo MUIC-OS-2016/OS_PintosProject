@@ -31,9 +31,8 @@ static void real_time_sleep (int64_t num, int32_t denom);
 static void real_time_delay (int64_t num, int32_t denom);
 
 /* Keep track of idle threads and start time*/
-static struct list idle_threads;
-static struct list begin_times;
-static struct list end_times;
+static struct list sleep_threads;
+
 
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
@@ -95,18 +94,27 @@ void
 timer_sleep (int64_t ticks) 
 {
   // turn off interupt
+  enum intr_level old_level;
+  old_level = intr_disable ();
+
   int64_t start = timer_ticks ();
 
-  // ASSERT (intr_get_level () == INTR_ON);
   if (timer_elapsed (start) < ticks) {
     thread_block();
+    sleep_thread st;
+    st.tid = thread_tid()
+    st.start = start
+    st.end = ticks
+    sleep_threads.
     /*
     add thread_tid() to idle_threads
     add start to begin_times
     add ticks to end_times
     */
-    // turn on
+
   }
+  // turn on interupt
+  intr_set_level (old_level);
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be

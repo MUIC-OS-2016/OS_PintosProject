@@ -26,4 +26,11 @@ void timer_ndelay (int64_t nanoseconds);
 
 void timer_print_stats (void);
 
+struct sleep_threads
+{
+	tid_t tid;
+	int64_t start;
+	int64_t end;
+};
+
 #endif /* devices/timer.h */
