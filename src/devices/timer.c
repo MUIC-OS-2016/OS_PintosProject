@@ -41,6 +41,7 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
+  list_init (&sleep_threads)
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -102,10 +103,11 @@ timer_sleep (int64_t ticks)
   if (timer_elapsed (start) < ticks) {
     thread_block();
     sleep_thread st;
-    st.tid = thread_tid()
-    st.start = start
-    st.end = ticks
-    sleep_threads.
+    st.tid = thread_tid();
+    st.start = start;
+    st.end = ticks;
+    list_pushback (&sleep_threads, &st -> elem);
+
     /*
     add thread_tid() to idle_threads
     add start to begin_times
@@ -192,8 +194,24 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
-  // thread_tick ();
+  // Can comment this to improve performance
+  thread_tick ();
 
+  // turn off interupt
+  enum intr_level old_level;
+  old_level = intr_disable ();  
+  list_elem elem = list_begin (sleep_threads);
+  list_elem nextElem;
+  while (elem != NULL) {
+    nextElem = list_next(elem);
+    /*
+    if (timer_elapsed( ... ) > ... ) {
+      thread_unblock( ... )
+      list_remove (elem)
+    }
+    */
+    elem = nextElem;
+  }
   /* 
     turn off interupt
     for i in list_size(idle_threads):
@@ -202,6 +220,9 @@ timer_interrupt (struct intr_frame *args UNUSED)
         remove threads[i] and begin_times[i] and end_times[i]
     turn on interupt
   */
+
+  // turn on interupt
+  intr_set_level (old_level);
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

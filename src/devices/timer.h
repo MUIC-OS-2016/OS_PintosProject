@@ -31,6 +31,7 @@ struct sleep_threads
 	tid_t tid;
 	int64_t start;
 	int64_t end;
+	struct list_elem elem;
 };
 
 #endif /* devices/timer.h */

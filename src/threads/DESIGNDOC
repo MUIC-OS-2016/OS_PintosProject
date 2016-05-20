@@ -158,6 +158,8 @@ the CPU in a more equal fashion rather than one thread always hogging the CPU.
 >> C4: How is the way you divided the cost of scheduling between code
 >> inside and outside interrupt context likely to affect performance?
 
+- Every threads have a better chance to run and utilize CPU
+
 ---- RATIONALE ----
 
 >> C5: Briefly critique your design, pointing out advantages and
