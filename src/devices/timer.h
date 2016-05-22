@@ -7,6 +7,10 @@
 /* Number of timer interrupts per second. */
 #define TIMER_FREQ 100
 
+/* Thread identifier type.
+   You can redefine this to whatever type you like. */
+typedef int tid_t;
+
 void timer_init (void);
 void timer_calibrate (void);
 
