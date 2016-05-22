@@ -97,12 +97,12 @@ timer_elapsed (int64_t then)
 void
 timer_sleep (int64_t ticks) 
 {
+  printf("Yeah I got called by %d\n", thread_tid());
   // turn off interupt
   enum intr_level old_level;
   old_level = intr_disable ();
 
   int64_t start = timer_ticks ();
-  printf("Yeah I got called by %d\n", thread_tid());
   if (timer_elapsed (start) < ticks) {
     printf("%d is going to sleep\n", thread_tid());
     //thread_block();
@@ -202,11 +202,11 @@ timer_interrupt (struct intr_frame *args UNUSED)
   thread_tick ();
 
   // turn off interupt
+  printf("checking if anyone should be wake up\n");
   enum intr_level old_level;
   old_level = intr_disable ();  
 
   struct list_elem *e;
-  printf("checking if anyone should be wake up\n");
   for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
        e = list_next (e))
   {
