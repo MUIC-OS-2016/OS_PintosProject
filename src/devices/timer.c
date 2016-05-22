@@ -109,7 +109,7 @@ timer_sleep (int64_t ticks)
     st -> tid = thread_tid();
     st -> start = start;
     st -> end = ticks;
-    list_pushback (&sleep_threads, &st -> elem);
+    list_push_back (&sleep_threads, &st -> elem);
 
     /*
     add thread_tid() to idle_threads
