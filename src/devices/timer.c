@@ -203,7 +203,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   // turn off interupt
   enum intr_level old_level;
   old_level = intr_disable ();  
-  for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
+  for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads){
        e = list_next (e))
     struct sleep_thread * st = list_entry (e, struct sleep_thread, sleep_threads);
     if (timer_elapsed(st -> start) > st -> end) {
