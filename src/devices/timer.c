@@ -105,7 +105,7 @@ timer_sleep (int64_t ticks)
   int64_t start = timer_ticks ();
   if (timer_elapsed (start) < ticks) {
     printf("%d is going to sleep\n", thread_tid());
-    //thread_block();
+    thread_block();
     struct blocked_thread st;
     st.thread = thread_current();
     st.start = start;
@@ -212,7 +212,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   {
     struct blocked_thread * st = list_entry (e, struct blocked_thread, elem);
     if (timer_elapsed(st -> start) > st -> end) {
-      //thread_unblock(st -> thread);
+      thread_unblock(st -> thread);
       list_remove(&(st) -> elem);
     }
   }
