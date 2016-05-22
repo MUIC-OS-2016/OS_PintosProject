@@ -104,6 +104,7 @@ timer_sleep (int64_t ticks)
   int64_t start = timer_ticks ();
 
   if (timer_elapsed (start) < ticks) {
+    printf("%d is going to sleep\n", thread_tid());
     thread_block();
     struct blocked_thread *st;
     st -> tid = thread_tid();
@@ -205,6 +206,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   old_level = intr_disable ();  
 
   struct list_elem *e;
+  printf("checking if anyone should be wake up\n");
   for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
        e = list_next (e))
   {
