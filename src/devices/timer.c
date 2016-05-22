@@ -102,7 +102,7 @@ timer_sleep (int64_t ticks)
   old_level = intr_disable ();
 
   int64_t start = timer_ticks ();
-  printf("Yeah I got called\n");
+  printf("Yeah I got called by %d\n", thread_tid());
   if (timer_elapsed (start) < ticks) {
     printf("%d is going to sleep\n", thread_tid());
     thread_block();
