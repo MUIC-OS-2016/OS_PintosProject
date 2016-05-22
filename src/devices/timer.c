@@ -208,10 +208,10 @@ timer_interrupt (struct intr_frame *args UNUSED)
   for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
        e = list_next (e))
   {
-    struct sleep_thread * st = list_entry (e, struct sleep_thread, sleep_threads);
+    struct sleep_thread * st = list_entry (e, struct sleep_thread, elem);
     if (timer_elapsed(st -> start) > st -> end) {
       thread_unblock(st -> tid);
-      list_remove(st -> elem);
+      list_remove(&(st) -> elem);
     }
   }
   // turn on interupt
