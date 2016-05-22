@@ -44,7 +44,7 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
-  list_init (&sleep_threads)
+  list_init (&sleep_threads);
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -105,10 +105,10 @@ timer_sleep (int64_t ticks)
 
   if (timer_elapsed (start) < ticks) {
     thread_block();
-    sleep_thread st;
-    st.tid = thread_tid();
-    st.start = start;
-    st.end = ticks;
+    struct sleep_thread *st;
+    st -> tid = thread_tid();
+    st -> start = start;
+    st -> end = ticks;
     list_pushback (&sleep_threads, &st -> elem);
 
     /*
