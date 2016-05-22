@@ -22,9 +22,6 @@
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
 
-/* Thread identifier type.
-   You can redefine this to whatever type you like. */
-typedef int tid_t;
 
 /* Number of loops per timer tick.
    Initialized by timer_calibrate(). */
@@ -208,6 +205,11 @@ timer_interrupt (struct intr_frame *args UNUSED)
   old_level = intr_disable ();  
   for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
        e = list_next (e))
+    struct sleep_thread * st = list_entry (e, struct sleep_thread, sleep_threads);
+    if (timer_elapsed(st -> start) > st -> end) {
+      thread_unblock(st -> tid);
+      list_remove(st -> elem);
+    }
     /*
     if (timer_elapsed( ... ) > ... ) {
       thread_unblock( ... )
