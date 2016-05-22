@@ -106,10 +106,10 @@ timer_sleep (int64_t ticks)
   if (timer_elapsed (start) < ticks) {
     printf("%d is going to sleep\n", thread_tid());
     thread_block();
-    struct blocked_thread *st;
-    st -> thread = thread_current();
-    st -> start = start;
-    st -> end = ticks;
+    struct blocked_thread st;
+    st.thread = thread_current();
+    st.start = start;
+    st.end = ticks;
     list_push_back (&sleep_threads, &st -> elem);
 
     /*
