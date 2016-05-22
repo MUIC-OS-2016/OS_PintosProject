@@ -212,7 +212,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   {
     struct blocked_thread * st = list_entry (e, struct blocked_thread, elem);
     if (timer_elapsed(st -> start) > st -> end) {
-      thread_unblock(st -> thread);
+      //thread_unblock(st -> thread);
       list_remove(&(st) -> elem);
     }
   }
