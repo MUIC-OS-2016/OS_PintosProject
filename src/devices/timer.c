@@ -200,17 +200,14 @@ timer_interrupt (struct intr_frame *args UNUSED)
   // turn off interupt
   enum intr_level old_level;
   old_level = intr_disable ();  
-  list_elem elem = list_begin (sleep_threads);
-  list_elem nextElem;
-  while (elem != NULL) {
-    nextElem = list_next(elem);
+  for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
+       e = list_next (e))
     /*
     if (timer_elapsed( ... ) > ... ) {
       thread_unblock( ... )
       list_remove (elem)
     }
     */
-    elem = nextElem;
   }
   /* 
     turn off interupt
