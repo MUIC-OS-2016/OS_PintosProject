@@ -105,7 +105,7 @@ timer_sleep (int64_t ticks)
 
   if (timer_elapsed (start) < ticks) {
     thread_block();
-    struct sleep_thread *st;
+    struct blocked_thread *st;
     st -> tid = thread_tid();
     st -> start = start;
     st -> end = ticks;
@@ -208,7 +208,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
        e = list_next (e))
   {
-    struct sleep_thread * st = list_entry (e, struct sleep_thread, elem);
+    struct blocked_thread * st = list_entry (e, struct blocked_thread, elem);
     if (timer_elapsed(st -> start) > st -> end) {
       thread_unblock(st -> tid);
       list_remove(&(st) -> elem);
