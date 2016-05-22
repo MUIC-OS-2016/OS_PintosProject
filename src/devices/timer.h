@@ -33,7 +33,7 @@ void timer_print_stats (void);
 
 struct blocked_thread
 {
-	tid_t tid;
+	struct thread * thread;
 	int64_t start;
 	int64_t end;
 	struct list_elem elem;
