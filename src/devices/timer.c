@@ -9,10 +9,7 @@
 #include "threads/thread.h"
 
 
-#include "threads/intr-stubs.h"
-#include "threads/palloc.h"
-#include "threads/switch.h"
-#include "threads/vaddr.h"
+
 /* See [8254] for hardware details of the 8254 timer chip. */
 
 #if TIMER_FREQ < 19
@@ -24,6 +21,10 @@
 
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
+
+/* Thread identifier type.
+   You can redefine this to whatever type you like. */
+typedef int tid_t;
 
 /* Number of loops per timer tick.
    Initialized by timer_calibrate(). */
