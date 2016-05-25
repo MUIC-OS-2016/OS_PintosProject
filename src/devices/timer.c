@@ -202,7 +202,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   thread_tick ();
 
   // turn off interupt
-  printf("checking if anyone should be wake up\n");
+  //printf("checking if anyone should be wake up\n");
   enum intr_level old_level;
   old_level = intr_disable ();  
 
@@ -210,8 +210,10 @@ timer_interrupt (struct intr_frame *args UNUSED)
   for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
        e = list_next (e))
   {
+    printf("OOO\n");
     struct blocked_thread * st = list_entry (e, struct blocked_thread, elem);
     if (timer_elapsed(st -> start) > st -> end) {
+      printf("WOW WOw\n");
       thread_unblock(st -> thread);
       list_remove(&(st) -> elem);
     }
