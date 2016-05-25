@@ -104,7 +104,7 @@ timer_sleep (int64_t ticks)
 
   int64_t start = timer_ticks ();
   if (timer_elapsed (start) < ticks) {
-    printf("%d is going to sleep\n", thread_tid());
+    printf("%d is going to sleep\n", thread_current());
     thread_block();
     struct blocked_thread st;
     st.thread = thread_current();
@@ -112,6 +112,9 @@ timer_sleep (int64_t ticks)
     st.end = ticks;
     list_push_back (&sleep_threads, &st.elem);
 
+    struct list_elem * ss = list_back(&sleep_threads);
+    struct blocked_thread * bt = list_entry (ss, struct blocked_thread, elem);
+    printf("%d\n", bt -> thread);
     /*
     add thread_tid() to idle_threads
     add start to begin_times
