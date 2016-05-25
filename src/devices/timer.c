@@ -42,9 +42,10 @@ static struct list sleep_threads;
 void
 timer_init (void) 
 {
+  list_init (&sleep_threads);
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
-  list_init (&sleep_threads);
+  
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -99,31 +100,22 @@ timer_sleep (int64_t ticks)
 {
   //printf("Yeah I got called by %d\n", thread_tid());
   // turn off interupt
+  //printf("Input: %d ticks\n", ticks);
   enum intr_level old_level;
   old_level = intr_disable ();
 
   int64_t start = timer_ticks ();
   if (timer_elapsed (start) < ticks) {
-    printf("%d is going to sleep\n", thread_current());
-    thread_block();
-    struct blocked_thread * st;
+    struct blocked_thread * st = 
+      (struct blocked_thread *) malloc (sizeof(struct blocked_thread));
     st -> thread = thread_current();
     st -> start = start;
     st -> end = ticks;
-    printf("%d\n", st -> thread);
-    list_push_back (&sleep_threads, &(st -> elem));
-
-    struct list_elem * ss = list_back(&sleep_threads);
-    struct blocked_thread * bt = list_entry (ss, struct blocked_thread, elem);
-    printf("%d is the thread in the back\n", bt -> thread);
-    /*
-    add thread_tid() to idle_threads
-    add start to begin_times
-    add ticks to end_times
-    */
-
+    list_push_back (&sleep_threads, &st->elem);
+    //printf("%d is going to sleep ", (st -> thread) -> tid);
+    //printf("and will be wake up in %d ticks\n", st -> end);
+    thread_block();
   }
-  // turn on interupt
   intr_set_level (old_level);
 }
 
@@ -206,24 +198,22 @@ timer_interrupt (struct intr_frame *args UNUSED)
   thread_tick ();
 
   // turn off interupt
-  //printf("checking if anyone should be wake up\n");
-  enum intr_level old_level;
-  old_level = intr_disable ();  
+  // enum intr_level old_level;
+  // old_level = intr_disable ();  
 
   struct list_elem *e;
   for (e = list_begin (&sleep_threads); e != list_end (&sleep_threads);
        e = list_next (e))
   {
-    //printf("OOO\n");
     struct blocked_thread * st = list_entry (e, struct blocked_thread, elem);
-    if (timer_elapsed(st -> start) > st -> end) {
-      //printf("WOW WOw\n");
+    if (timer_elapsed(st -> start) >= st -> end) {
+      //printf("%d is going to wake up\n", (st -> thread) -> tid);
       thread_unblock(st -> thread);
       list_remove(&(st) -> elem);
     }
   }
   // turn on interupt
-  intr_set_level (old_level);
+  //intr_set_level (old_level);
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
