@@ -110,6 +110,7 @@ timer_sleep (int64_t ticks)
     st -> thread = thread_current();
     st -> start = start;
     st -> end = ticks;
+    printf("%d\n", st -> thread);
     list_push_back (&sleep_threads, &(st -> elem));
 
     struct list_elem * ss = list_back(&sleep_threads);
