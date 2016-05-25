@@ -202,7 +202,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   thread_tick ();
 
   // turn off interupt
-  //printf("checking if anyone should be wake up\n");
+  printf("checking if anyone should be wake up\n");
   enum intr_level old_level;
   old_level = intr_disable ();  
 
