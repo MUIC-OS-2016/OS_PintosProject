@@ -98,6 +98,8 @@ thread_init (void)
   init_thread (initial_thread, "main", PRI_DEFAULT);
   initial_thread->status = THREAD_RUNNING;
   initial_thread->tid = allocate_tid ();
+
+  initial_thread->lock = NULL;
 }
 
 /* Starts preemptive thread scheduling by enabling interrupts.
@@ -166,7 +168,10 @@ tid_t
 thread_create (const char *name, int priority,
                thread_func *function, void *aux) 
 {
- // printf("my p is %d and name is %s\n", thread_current()->priority, thread_current()->name);
+  //printf("The thread that has this lock is %s\n", ((lock *)aux)->holder->name);
+  //printf("\n", aux);
+  struct lock * lock = (struct lock *) aux;
+
   struct thread *t;
   struct kernel_thread_frame *kf;
   struct switch_entry_frame *ef;
@@ -185,7 +190,11 @@ thread_create (const char *name, int priority,
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
   
-  
+  if (lock != NULL && lock->holder != t)
+  {
+    t->lock = lock;
+    //printf("is %d\n", lock->holder);
+  }
   /* Prepare thread for first run by initializing its stack.
      Do this atomically so intermediate values for the 'stack' 
      member cannot be observed. */
@@ -208,15 +217,15 @@ thread_create (const char *name, int priority,
 
   intr_set_level (old_level);
 
-  /* Add to run queue. */
+  /* Add to run queue. */    
   thread_unblock (t);
 
   //printf("new p is %d and name is %s\n", t->priority, t->name);
   if (thread_current()->priority < t->priority)
   {
-    //printf("we got in\n");
     thread_yield();
   }
+  if ()
   //printf("*my p is %d and name is %s\n", thread_current()->priority, thread_current()->name);
 
 
@@ -321,6 +330,7 @@ void
 thread_yield (void) 
 {
   struct thread *cur = thread_current ();
+  //printf("my name is %s %d\n", cur->name, cur->tid);
   enum intr_level old_level;
   
   ASSERT (!intr_context ());
@@ -515,9 +525,16 @@ static struct thread *
 next_thread_to_run (void) 
 {
   if (list_empty (&ready_list))
+  {
     return idle_thread;
-  else
+  } else {
+    struct thread * t = list_entry(
+      list_front(&ready_list), struct thread, elem);
+    if (t->lock != NULL) {
+      priority_donation(t->lock);
+    }
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
+  }
 }
 
 /* Completes a thread switch by activating the new thread's page
@@ -616,4 +633,16 @@ bool priority_less_func_Td(struct list_elem * a, struct list_elem * b, void * au
   struct thread * tB = list_entry (b, struct thread, elem);
 
   return (tA->priority) > (tB->priority);  
+}
+
+void priority_donation(struct lock * lock)
+{
+  struct thread * owner = lock->holder;
+  int old_priority = owner->priority;
+  if (old_priority < thread_current()->priority)
+  {
+    owner->priority = thread_current()->priority;
+    thread_yield();
+  }
+  owner->priority = old_priority;
 }
