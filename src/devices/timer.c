@@ -111,7 +111,8 @@ timer_sleep (int64_t ticks)
     st -> thread = thread_current();
     st -> start = start;
     st -> end = ticks;
-    list_push_back (&sleep_threads, &st->elem);
+    //list_push_back (&sleep_threads, &st->elem);
+    list_insert_ordered(&sleep_threads, &st->elem, priority_less_func, NULL);
     //printf("%d is going to sleep ", (st -> thread) -> tid);
     //printf("and will be wake up in %d ticks\n", st -> end);
     thread_block();
@@ -285,4 +286,13 @@ real_time_delay (int64_t num, int32_t denom)
      the possibility of overflow. */
   ASSERT (denom % 1000 == 0);
   busy_wait (loops_per_tick * num / 1000 * TIMER_FREQ / (denom / 1000)); 
+}
+
+bool priority_less_func(struct list_elem * a, struct list_elem * b, void * aux) 
+{
+
+  struct blocked_thread * btA = list_entry (a, struct blocked_thread, elem);
+  struct blocked_thread * btB = list_entry (b, struct blocked_thread, elem);
+
+  return ((btA->thread)->priority) > ((btB->thread)->priority);  
 }

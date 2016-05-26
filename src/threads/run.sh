@@ -2,5 +2,5 @@
 
 make clean
 make
-pintos run alarm-single
+pintos run priority-change
 
