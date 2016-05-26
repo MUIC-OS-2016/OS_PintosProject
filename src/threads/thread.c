@@ -166,6 +166,7 @@ tid_t
 thread_create (const char *name, int priority,
                thread_func *function, void *aux) 
 {
+ // printf("my p is %d and name is %s\n", thread_current()->priority, thread_current()->name);
   struct thread *t;
   struct kernel_thread_frame *kf;
   struct switch_entry_frame *ef;
@@ -183,7 +184,8 @@ thread_create (const char *name, int priority,
   /* Initialize thread. */
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
-
+  
+  
   /* Prepare thread for first run by initializing its stack.
      Do this atomically so intermediate values for the 'stack' 
      member cannot be observed. */
@@ -208,6 +210,15 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
+
+  //printf("new p is %d and name is %s\n", t->priority, t->name);
+  if (thread_current()->priority < t->priority)
+  {
+    //printf("we got in\n");
+    thread_yield();
+  }
+  //printf("*my p is %d and name is %s\n", thread_current()->priority, thread_current()->name);
+
 
   return tid;
 }
@@ -345,8 +356,14 @@ thread_set_priority (int new_priority)
 {
   enum intr_level old_level;
   old_level = intr_disable ();
+
   thread_current ()->priority = new_priority;
-  //printf("My priority is now %d and input priority is %d\n", thread_current()->priority, new_priority);
+  
+  struct thread * t = list_entry(list_front(&ready_list), struct thread, elem);
+  if (t->priority >= new_priority) {
+    thread_yield();
+  }
+ 
   intr_set_level (old_level);
 }
 
@@ -560,9 +577,10 @@ static void
 schedule (void) 
 {
   struct thread *cur = running_thread ();
+  //printf("o\n");
   struct thread *next = next_thread_to_run ();
   struct thread *prev = NULL;
-
+  //printf("cur name %s\nnext name %s\n", cur->name, next->name);
   ASSERT (intr_get_level () == INTR_OFF);
   ASSERT (cur->status != THREAD_RUNNING);
   ASSERT (is_thread (next));
