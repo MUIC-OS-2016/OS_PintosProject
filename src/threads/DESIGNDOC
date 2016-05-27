@@ -70,8 +70,6 @@ Pankaj Ahuja 5680004
 			 PRIORITY SCHEDULING
 			 ===================
 
----- DATA STRUCTURES ----
-
 >> B1: Copy here the declaration of each new or changed `struct' or
 >> `struct' member, global or static variable, `typedef', or
 >> enumeration.  Identify the purpose of each in 25 words or less.
@@ -126,6 +124,10 @@ Pankaj Ahuja 5680004
 
 -Seems the most natural thing to do, since it solves the problem of deadlocks (when a higher priority thread is waiting for a lower priority one to release a lock) - and we also take care of the 'recursive' updating of the maximum priority of the threads.
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 32ccd8f039fda45c78611e99a3b0560d0b4d1da9
 			  ADVANCED SCHEDULER
 			  ==================
 
@@ -135,6 +137,8 @@ Pankaj Ahuja 5680004
 >> `struct' member, global or static variable, `typedef', or
 >> enumeration.  Identify the purpose of each in 25 words or less.
 
+
+
 ---- ALGORITHMS ----
 
 >> C2: Suppose threads A, B, and C have nice values 0, 1, and 2.  Each
@@ -142,26 +146,41 @@ Pankaj Ahuja 5680004
 >> scheduling decision and the priority and recent_cpu values for each
 >> thread after each given number of timer ticks:
 
+https://web.stanford.edu/class/cs140/projects/pintos/pintos_7.html#SEC131
+
+- Use this eqn to calculate priority:
+priority = PRI_MAX - (recent_cpu / 4) - (nice * 2)
+If tied, use least recent_cpu one
+
+- Use this eqn to calculate recent_cpu:
+recent_cpu = (2*load_avg)/(2*load_avg + 1) * recent_cpu + nice,
+
 timer  recent_cpu    priority   thread
 ticks   A   B   C   A   B   C   to run
 -----  --  --  --  --  --  --   ------
- 0
- 4
- 8
-12
-16
-20
-24
-28
-32
-36
+ 0     0   0   0   63  61  59     A
+ 4     4   0   0   62  61  59     A
+ 8     8   0   0   61  61  59     B
+12     8   4   0   61  60  59     A
+16     12  4   0   60  60  59     B
+20     12  8   0   60  59  59     A
+24     16  8   0   59  59  59     C
+28     16  8   4   59  59  58     B 
+32     16  12  4   59  58  58     A
+36     20  12  4   58  58  58     C 
 
 >> C3: Did any ambiguities in the scheduler specification make values
 >> in the table uncertain?  If so, what rule did you use to resolve
 >> them?  Does this match the behavior of your scheduler?
 
+- If there are multiple priorities which are equal, I chose to use the thread
+this had the least recent_cpu one because that might make all threads utilize 
+the CPU in a more equal fashion rather than one thread always hogging the CPU.
+
 >> C4: How is the way you divided the cost of scheduling between code
 >> inside and outside interrupt context likely to affect performance?
+
+- Every threads have a better chance to run and utilize CPU
 
 ---- RATIONALE ----
 
@@ -176,6 +195,15 @@ ticks   A   B   C   A   B   C   to run
 >> abstraction layer for fixed-point math, that is, an abstract data
 >> type and/or a set of functions or macros to manipulate fixed-point
 >> numbers, why did you do so?  If not, why not?
+
+
+
+
+
+
+
+
+
 
 			   SURVEY QUESTIONS
 			   ================
