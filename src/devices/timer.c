@@ -34,8 +34,14 @@ static void real_time_sleep (int64_t num, int32_t denom);
 static void real_time_delay (int64_t num, int32_t denom);
 
 /* Keep track of idle threads and start time*/
+<<<<<<< HEAD
+static struct list sleeping_threads;
+static struct list begin_times;
+static struct list end_times;
+=======
 static struct list sleep_threads;
 
+>>>>>>> 32ccd8f039fda45c78611e99a3b0560d0b4d1da9
 
 /* Sets up the timer to interrupt TIMER_FREQ times per second,
    and registers the corresponding interrupt. */
@@ -116,6 +122,15 @@ timer_sleep (int64_t ticks)
     //printf("%d is going to sleep ", (st -> thread) -> tid);
     //printf("and will be wake up in %d ticks\n", st -> end);
     thread_block();
+<<<<<<< HEAD
+    /*
+    add thread_tid() to sleeping_threads
+    add start to begin_times
+    add ticks to end_times
+    */
+    // turn on
+=======
+>>>>>>> 32ccd8f039fda45c78611e99a3b0560d0b4d1da9
   }
   intr_set_level (old_level);
 }
@@ -195,6 +210,18 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
+<<<<<<< HEAD
+  // thread_tick ();
+
+  /* 
+    turn off interupt
+    for i in list_size(sleeping_threads):
+      if (timer_elapsed(begin_times[i]) > end_times[i]):
+        thread_unblock(sleeping_threads[i])
+        remove threads[i] and begin_times[i] and end_times[i]
+    turn on interupt
+  */
+=======
   // Can comment this to improve performance
   thread_tick ();
 
@@ -215,6 +242,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   }
   // turn on interupt
   //intr_set_level (old_level);
+>>>>>>> 32ccd8f039fda45c78611e99a3b0560d0b4d1da9
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
