@@ -88,12 +88,13 @@ struct thread
     char name[16];                      /* Name (for debugging purposes). */
     uint8_t *stack;                     /* Saved stack pointer. */
     int priority;                       /* Priority. */
+    int original_priority;
     struct list_elem allelem;           /* List element for all threads list. */
 
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
 
-    struct lock * lock;
+    struct lock *next_lock;
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -141,5 +142,6 @@ int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
 bool priority_less_func_Td(struct list_elem * a, struct list_elem * b, void * aux);
+void priority_donation(void);
 
 #endif /* threads/thread.h */
