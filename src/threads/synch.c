@@ -70,10 +70,11 @@ sema_down (struct semaphore *sema)
       // struct thread *t = thread_current();
       // ASSERT (strcmp(t->name,"acquire1") != 0);
       // ASSERT (t->next_lock != NULL);
-    // printf("curr: %s\n", thread_name());
     priority_donation();
     list_insert_ordered (&sema->waiters, &thread_current()->elem, priority_less_func_Td, NULL);
     thread_block();
+    // printf("curr: %p\n", thread_current()->next_lock);
+    // printf("d: %d\n", sema->value);
   }
   sema->value--;
   intr_set_level (old_level);
@@ -123,7 +124,7 @@ sema_up (struct semaphore *sema)
   }
   sema->value++;
   thread_yield();
-  intr_set_level (old_level);
+  intr_set_level(old_level);
 }
 
 static void sema_test_helper (void *sema_);
@@ -206,12 +207,13 @@ lock_acquire (struct lock *lock)
   struct thread *t = thread_current();
   // strlcpy (thread_current()->name, "test", 6); // Changing name just for test
   // printf("b:%s\n",thread_name());
-  t->next_lock = lock; // I set var to lock, but it changes to NULL quickly!
+  t->next_lock = lock;
   ASSERT (t->next_lock != NULL);
-
+  if (lock->holder != NULL){
+    add_to_waiting_list(lock);
+  }
   sema_down(&lock->semaphore);
 
-  // printf("a:%s\n",thread_current()->name);
   t->next_lock = NULL;
   lock->holder = t;
   intr_set_level(old_level);
@@ -254,10 +256,8 @@ lock_release (struct lock *lock)
 
   enum intr_level old_level = intr_disable();
 
-  struct thread *t = lock->holder;
-  if (t->priority > t->original_priority){
-    t->priority = t->original_priority;
-  }
+  remove_waiting(lock);
+  next_highest_priority();
   lock->holder = NULL;
 
   sema_up (&lock->semaphore);

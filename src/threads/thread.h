@@ -95,6 +95,8 @@ struct thread
     struct list_elem elem;              /* List element. */
 
     struct lock *next_lock;
+    struct list lock_wait_threads;
+    struct list_elem elem_d;              /* Donation element. */
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
@@ -143,5 +145,8 @@ int thread_get_load_avg (void);
 
 bool priority_less_func_Td(struct list_elem * a, struct list_elem * b, void * aux);
 void priority_donation(void);
+void remove_waiting(struct lock *lock);
+void add_to_waiting_list(struct lock *lock);
+void next_highest_priority(void);
 
 #endif /* threads/thread.h */

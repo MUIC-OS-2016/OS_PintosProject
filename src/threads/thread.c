@@ -249,7 +249,8 @@ void
 thread_unblock (struct thread *t) 
 {
   enum intr_level old_level;
-  // printf("unblocking: %s\n", t->name);
+  // printf("unblocking: %s, p:%d\n", t->name, t->priority);
+  // printf("curr: %s, p:%d\n", thread_current()->name, thread_current()->priority);
   ASSERT (is_thread (t));
 
   old_level = intr_disable ();
@@ -319,7 +320,6 @@ void
 thread_yield (void) 
 {
   struct thread *cur = thread_current ();
-  //printf("my name is %s %d\n", cur->name, cur->tid);
   enum intr_level old_level;
   
   ASSERT (!intr_context ());
@@ -360,7 +360,9 @@ thread_set_priority (int new_priority)
   thread_current()->priority = new_priority;
   
   struct thread * t = list_entry(list_front(&ready_list), struct thread, elem);
-  if (t->priority >= thread_current()->priority) {
+
+  priority_donation();
+  if (t->priority > thread_current()->priority) {
     thread_yield();
   }
  
@@ -491,6 +493,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->original_priority = priority;
   t->next_lock = NULL;
+  list_init (&t->lock_wait_threads);
   t->magic = THREAD_MAGIC;
   list_insert_ordered (&all_list, &t->allelem, priority_less_func_Td, NULL);
 }
@@ -589,7 +592,6 @@ schedule (void)
   struct thread *cur = running_thread ();
   struct thread *next = next_thread_to_run ();
   struct thread *prev = NULL;
-  //printf("cur name %s\nnext name %s\n", cur->name, next->name);
   ASSERT (intr_get_level () == INTR_OFF);
   ASSERT (cur->status != THREAD_RUNNING);
   ASSERT (is_thread (next));
@@ -631,19 +633,53 @@ void priority_donation(void)
 {
   struct thread *t = thread_current();
   struct lock *l = t->next_lock;
-  // printf("donate from: %s\n", thread_current()->name);
   if (l != NULL){
-    // printf("name: %s\n", l->holder->name);
     struct thread *owner = l->holder;
-    // printf("1) holder=%s,p=%d\ncurrent=%s,p=%d\n",
-    //   owner->name,owner->priority,thread_current()->name,thread_current()->priority);
-    if (owner->priority < t->priority) {
-      owner->priority = t->priority;
-      // printf("2) holder=%s,p=%d\ncurrent=%s,p=%d\n",
-      //   owner->name,owner->priority,thread_current()->name,thread_current()->priority);
-      // thread_yield();
+
+    if (!list_empty(&owner->lock_wait_threads)){
+      struct thread *m = list_entry(list_front(&owner->lock_wait_threads), struct thread, elem_d);
+
+      if (owner->priority < m->priority) {
+        owner->priority = m->priority;
+      }
     }
-    // printf("3) holder=%s,p=%d\ncurrent=%s,p=%d\n",
-    //   owner->name,owner->priority,thread_current()->name,thread_current()->priority);
   }
+}
+
+void remove_waiting(struct lock *lock)
+{
+  struct thread *owner = lock->holder;
+  if (!list_empty(&owner->lock_wait_threads)){
+    struct list_elem *e;
+    for (e=list_begin(&owner->lock_wait_threads);e!=list_end(&owner->lock_wait_threads);e=list_next(e))
+    {
+      struct thread *t = list_entry (e, struct thread, elem_d);
+      if (t->next_lock == lock){
+        list_remove(e);
+      }
+    }
+  }
+}
+
+void next_highest_priority(void)
+{
+  struct thread *t = thread_current();
+  if (!list_empty(&t->lock_wait_threads)){
+    struct thread *m = list_entry(list_front(&t->lock_wait_threads), struct thread, elem_d);
+
+    if (t->original_priority < m->priority) {
+      t->priority = m->priority;
+    } else {
+      t->priority = t->original_priority;
+    }
+  } else {
+    t->priority = t->original_priority;
+  }
+}
+
+void add_to_waiting_list(struct lock *lock)
+{
+  struct thread *t = thread_current();
+  struct thread *owner = lock->holder;
+  list_insert_ordered(&owner->lock_wait_threads, &t->elem_d, priority_less_func_Td, NULL);
 }
