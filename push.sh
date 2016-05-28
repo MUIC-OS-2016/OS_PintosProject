@@ -1,5 +1,1 @@
-#!/bin/bash
-
-git add .
-git commit -m "test"
-git push
+/home/muic/OS_PintosProject/push.sh
