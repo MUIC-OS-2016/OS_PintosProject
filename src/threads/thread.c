@@ -357,9 +357,7 @@ thread_set_priority (int new_priority)
   old_level = intr_disable ();
 
   thread_current()->original_priority = new_priority;
-  if (new_priority > thread_current()->priority){
-    thread_current()->priority = new_priority;
-  }
+  thread_current()->priority = new_priority;
   
   struct thread * t = list_entry(list_front(&ready_list), struct thread, elem);
   if (t->priority >= thread_current()->priority) {
