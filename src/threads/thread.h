@@ -96,7 +96,7 @@ struct thread
 
     struct lock *next_lock;
     struct list lock_wait_threads;
-    struct list_elem elem_d;              /* Donation element. */
+    struct list_elem elem_d;             
 
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
