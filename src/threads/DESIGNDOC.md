@@ -8,9 +8,9 @@
 
 >> Fill in the names and email addresses of your group members.
 
-Majeed Thaika 5680571
-Kongsak Tipakornrojanakit 5680624
-Pankaj Ahuja 5680004
+* Majeed Thaika 5680571
+* Kongsak Tipakornrojanakit 5680624
+* Pankaj Ahuja 5680004
 
 ---- PRELIMINARIES ----
 
